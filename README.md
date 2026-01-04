@@ -10,6 +10,7 @@ npm i git+https://github.com/metervara/dom-portal.git#v1.0.0
 ## Quick start (one line setup)
 ```ts
 import { setupDomPortal } from '@metervara/dom-portal';
+import '@metervara/dom-portal/dist/dom-portal.css'; // styles for the portal
 
 setupDomPortal({
   portalTarget: '#content',   // element that gets cloned into the portal
