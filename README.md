@@ -1,6 +1,6 @@
 # Dom Portal
 
-Open content in portal holes in a page, skwing the page to make room for the content. 
+Open content in portal holes in a page, skewing the page to make room for the content. 
 
 ## Install
 ```bash
