@@ -1,0 +1,41 @@
+/* REMOVE THIS? */
+.metervara-portal-content-container {
+  font-size: var(--metervara-portal-font-size);
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    font-size: inherit;
+  }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+.metervara-portal-content-container .safe-area {
+  position: absolute;
+  box-sizing: border-box;
+  left: 50%;
+  top: 50%;
+  width: var(--portal-width-inner-half);
+  height: var(--portal-width-inner-half);
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* FULL SIZE: stretch to fill */
+.metervara-portal-content-container .full-size {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}

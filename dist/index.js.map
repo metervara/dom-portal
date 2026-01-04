@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sources":["../src/index.ts"],"sourcesContent":["export function hello(name: string) {\n  return `Hello, ${name}!`;\n}"],"names":["hello","name"],"mappings":"AAAO,SAASA,EAAMC,GAAc;AAClC,SAAO,UAAUA,CAAI;AACvB;"}

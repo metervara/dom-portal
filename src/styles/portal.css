@@ -1,0 +1,274 @@
+.metervara-portal {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  /* DEV */
+  /* outline: 5px solid red;
+  border: 5px solid red; */
+  /* background-color: rgba(255, 0, 0, 0.5); */
+}
+
+/* .metervara-portal-content-container {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+} */
+
+.metervara-portal-content-container {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+  left: var(--portal-center-x);
+  top: var(--portal-center-y);
+  width: calc(2 * var(--portal-width-inner-half));
+  height: calc(2 * var(--portal-width-inner-half));
+
+  z-index: 0;
+
+  iframe {
+    /* position: absolute;
+    left: 0;
+    top: 0; */
+    width: 100%;
+    height: 100%;
+    border: none;
+    opacity: 0;
+    
+    transition: opacity 250ms linear;
+  }
+
+  iframe.loaded {
+    opacity: 1;
+  }
+}
+
+.metervara-portal-clone {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
+  /* Override any cloned target sizing (e.g. #content { width:100%; height:100% }) */
+  width: var(--clone-width) !important;
+  height: var(--clone-height) !important;
+}
+
+.metervara-portal-zone {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  /* Allow pointer events so outside-click detection can fire everywhere */
+  pointer-events: auto;
+
+  /* Testing performance optimizations for Safari */
+  will-change: transform;
+  contain: strict;
+
+  z-index: 2;
+
+  &.zone-top {
+    top: 0px;
+    height: var(--portal-center-y);
+  }
+
+  &.zone-bottom {
+    top: var(--portal-center-y);
+    bottom: 0px;
+
+    .metervara-portal-clone {
+      top: calc(-1 * var(--portal-center-y));
+    }
+  }
+
+  &.zone-left {
+    &.zone-outer {
+      z-index: 3;
+      left: 0px;
+      width: var(--portal-center-x);
+    }
+
+    &.zone-inner {
+      left: calc(var(--portal-center-x) - var(--portal-width-open-half));
+      width: var(--portal-width-open-half);
+
+      .metervara-portal-clone {
+        left: calc(-1 * calc(var(--portal-center-x) - var(--portal-width-open-half)));
+      }
+    }
+  }
+
+  &.zone-right {
+    &.zone-outer {
+      z-index: 3;
+      left: var(--portal-center-x);
+      right: 0px;
+
+      .metervara-portal-clone {
+        left: calc(-1 * var(--portal-center-x));
+      }
+    }
+
+    &.zone-inner {
+      left: var(--portal-center-x);
+      width: var(--portal-width-open-half);
+
+      .metervara-portal-clone {
+        left: calc(-1 * var(--portal-center-x));
+      }
+    }
+  }
+
+  /* Skewing & animation - seperated from positioning for clarity */
+  &.zone-top.zone-left.zone-inner {
+    transition: transform 700ms ease;
+    transform-origin: bottom right;
+    transform: skewY(-45deg);
+  }
+
+  &.zone-top.zone-right.zone-inner {
+    transition: transform 700ms ease;
+    transform-origin: bottom left;
+    transform: skewY(45deg);
+  }
+
+  &.zone-bottom.zone-left.zone-inner {
+    transition: transform 700ms ease;
+    transform-origin: top right;
+    transform: skewY(45deg);
+  }
+
+  &.zone-bottom.zone-right.zone-inner {
+    transition: transform 700ms ease;
+    transform-origin: top left;
+    transform: skewY(-45deg);
+  }
+
+  &.zone-left.zone-outer {
+    transition: transform 700ms ease;
+
+    .metervara-portal-clone {
+      transition: transform 700ms ease;
+    }
+  }
+
+  &.zone-right.zone-outer {
+    transition: transform 700ms ease;
+
+    .metervara-portal-clone {
+      transition: transform 700ms ease;
+    }
+  }
+}
+
+.metervara-portal-border {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
+  left: var(--portal-center-x);
+  top: var(--portal-center-y);
+  width: calc(2 * (var(--portal-width-open-half)) / sqrt(2));
+  height: calc(2 * (var(--portal-width-open-half)) / sqrt(2));
+
+  z-index: 1;
+
+  transition: transform 700ms ease;
+  /* transform: translate(-50%, -50%) rotate(45deg); */
+  pointer-events: none;
+
+  &.top {
+    transform-origin: top left;
+    /* transform:  translateY( calc(-1 * (var(--portal-width-open-half)))) rotate(45deg); */
+    /* OPEN */
+    transform: rotate(45deg);
+    border-top: var(--portal-border-width, 0px) var(--portal-border-style, solid) var(--portal-border-color, transparent);
+    border-left: var(--portal-border-width, 0px) var(--portal-border-style, solid) var(--portal-border-color, transparent);
+  }
+
+  &.bottom {
+    transform-origin: top left;
+    transform: translateY(calc(-2 * (var(--portal-width-open-half)))) rotate(45deg);
+    border-bottom: var(--portal-border-width, 0px) var(--portal-border-style, solid) var(--portal-border-color, transparent);;
+    border-right: var(--portal-border-width, 0px) var(--portal-border-style, solid) var(--portal-border-color, transparent);
+  }
+}
+
+/*
+  Open state transforms. 
+*/
+.metervara-portal.open {
+  .metervara-portal-zone {
+
+    &.zone-top.zone-left.zone-inner {
+      transform: skewY(-45deg) translateY(calc(-1 * var(--portal-width-open-half)));
+    }
+
+    &.zone-top.zone-right.zone-inner {
+      transform: skewY(45deg) translateY(calc(-1 * var(--portal-width-open-half)));
+    }
+
+    &.zone-bottom.zone-left.zone-inner {
+      transform: skewY(45deg) translateY(var(--portal-width-open-half));
+    }
+
+    &.zone-bottom.zone-right.zone-inner {
+      transform: skewY(-45deg) translateY(var(--portal-width-open-half));
+    }
+
+    &.zone-left.zone-outer {
+      transform: translateX(calc(-1 * var(--portal-width-open-half)));
+
+      .metervara-portal-clone {
+        transform: translateX(var(--portal-width-open-half));
+      }
+    }
+
+    &.zone-right.zone-outer {
+      transform: translateX(var(--portal-width-open-half));
+
+      .metervara-portal-clone {
+        transform: translateX(calc(-1 * var(--portal-width-open-half)));
+      }
+    }
+  }
+
+  .metervara-portal-border {
+    &.top {
+      transform: translateY(calc(-1 * (var(--portal-width-open-half)))) rotate(45deg);
+    }
+
+    &.bottom {
+      transform: translateY(calc(-1 * (var(--portal-width-open-half)))) rotate(45deg);
+    }
+  }
+}
+
+.metervara-portal-close-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 5;
+  background-color: #FF746C;
+  color: #0000AA;
+  border: none;
+  /* border-radius: 50%; */
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* transition: background 0.2s ease; */
+
+  font-size: 1.5rem;
+  /* TODO: Use icons */
+}
+
+.metervara-portal-close-button:hover {
+  /* background-color: yellow;
+  color: blue; */
+}
