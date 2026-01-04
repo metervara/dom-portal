@@ -7,7 +7,6 @@ export function enhancePortalLinks(): void {
 
 
     if (link) {
-      console.log("PortalLink clicked");
       e.preventDefault();
 
       const portalName = link.getAttribute('data-portal');
@@ -23,8 +22,6 @@ export function enhancePortalLinks(): void {
 
       const size = link.getAttribute('data-portal-size') || undefined;
 
-
-    console.log("Router init, portal:trigger", portalName);
       // Dispatch custom event that setupPortalSystem listens to
       window.dispatchEvent(new CustomEvent('portal:trigger', {
         detail: {

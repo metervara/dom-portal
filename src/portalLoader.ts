@@ -36,10 +36,6 @@ export async function loadPortalContent(
 ): Promise<void> {
   container.innerHTML = ""; // clear existing content
 
-  console.log("name", name);
-  console.log("container", container);
-  console.log("source", source);
-
   if (source.type === "inline") {
     const inlineElement = document.querySelector(source.selector) as
       | HTMLElement
@@ -76,11 +72,8 @@ export async function loadPortalContent(
     return;
   }
 
-  console.log("loding source.path", source.path);
   // Handle local HTML file
   const html = await fetch(source.path).then((res) => res.text());
-
-  // console.log(html);
 
   const wrapper = document.createElement("div");
   wrapper.innerHTML = html;
@@ -105,10 +98,15 @@ export async function loadPortalContent(
 }
 
 export function unloadPortalContent() {
-  // Remove portal content only inside the active portal container
-  document
-    .querySelectorAll(
-      ".metervara-portal .metervara-portal-content-container [data-portal-region='main']"
-    )
-    .forEach((region) => region.remove());
+  const regions = document.querySelectorAll(
+    ".metervara-portal .metervara-portal-content-container [data-portal-region='main']"
+  );
+
+  console.log("unloading content in portal", regions.length);
+  regions.forEach((region, index) => {
+    console.log("content parent", index, region.parentElement);
+  });
+
+  regions.forEach((region) => region.remove());
+
 }
