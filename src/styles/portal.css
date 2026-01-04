@@ -76,6 +76,8 @@
   /* Testing performance optimizations for Safari */
   will-change: transform;
   contain: strict;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 
   z-index: 2;
 

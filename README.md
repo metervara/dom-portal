@@ -49,6 +49,26 @@ Optional extras on triggers:
 - `routerMode: 'none'` → leaves the URL untouched (no routing)
 Deep-linking works automatically: visiting a URL with a portal param opens the matching trigger and recenters the viewport.
 
+## Customization
+
+### Transition timing
+
+You can customize transition duration, easing, and delay by overriding CSS variables:
+
+```css
+.metervara-portal {
+  /* Main portal transitions (default: 700ms ease 0ms) */
+  --portal-transition-duration: 1000ms;
+  --portal-transition-ease: ease-in-out;
+  --portal-transition-delay: 100ms;
+
+  /* Iframe opacity transition (default: 250ms linear 0ms) */
+  --portal-iframe-transition-duration: 500ms;
+  --portal-iframe-transition-ease: ease;
+  --portal-iframe-transition-delay: 0ms;
+}
+```
+
 ## Helpful APIs
 - `DomPortal.openAndReady(x, y, size?)` – open and wait for the content container.
 - `DomPortal.closePortal()` / `togglePortal()` – control the portal manually (e.g. bind to `Escape`).

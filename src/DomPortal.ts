@@ -61,11 +61,11 @@ export class DomPortal {
 
       this.portalElement?.style.setProperty(
         "--clone-width",
-        `${this.targetRect!.width}px`
+        `${Math.round(this.targetRect!.width)}px`
       );
       this.portalElement?.style.setProperty(
         "--clone-height",
-        `${this.targetRect!.height}px`
+        `${Math.round(this.targetRect!.height)}px`
       );
     });
     this.resizeObserver.observe(this.targetElement);
@@ -239,11 +239,11 @@ export class DomPortal {
     // this.portalElement.style.setProperty("--portal-width", "0px");
     this.portalElement.style.setProperty(
       "--clone-width",
-      `${this.targetRect!.width}px`
+      `${Math.round(this.targetRect!.width)}px`
     );
     this.portalElement.style.setProperty(
       "--clone-height",
-      `${this.targetRect!.height}px`
+      `${Math.round(this.targetRect!.height)}px`
     );
 
     const holeLayerWidth: number = 50;
@@ -254,11 +254,11 @@ export class DomPortal {
 
     this.portalElement.style.setProperty(
       "--portal-width-open-half",
-      `${this.portalWidthOpenHalf}px`
+      `${Math.round(this.portalWidthOpenHalf)}px`
     );
     this.portalElement.style.setProperty(
       "--portal-width-inner-half",
-      `${this.portalWidthOpenHalf - holeLayerWidth * (holeLayerCount - 1)}px`
+      `${Math.round(this.portalWidthOpenHalf - holeLayerWidth * (holeLayerCount - 1))}px`
     );
 
     // ZONES 
