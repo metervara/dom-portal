@@ -1,4 +1,4 @@
-import { PortalRouter } from './portalRouter';
+import { PortalRouter } from './portalRouter.js';
 
 export function enhancePortalLinks(): void {
   document.addEventListener("click", (e) => {

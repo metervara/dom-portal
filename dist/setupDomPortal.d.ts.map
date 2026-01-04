@@ -1,0 +1,1 @@
+{"version":3,"file":"setupDomPortal.d.ts","sourceRoot":"","sources":["../src/setupDomPortal.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,gBAAgB,CAAC;AAC3C,OAAO,EAAE,YAAY,EAAE,MAAM,mBAAmB,CAAC;AAIjD,KAAK,YAAY,GAAG;IAClB,UAAU,CAAC,EAAE,OAAO,GAAG,MAAM,GAAG,MAAM,CAAC;IACvC,YAAY,EAAE,MAAM,CAAC;CACtB,CAAC;AAEF,wBAAgB,cAAc,CAAC,OAAO,EAAE,YAAY;;;EAoHnD"}

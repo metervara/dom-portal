@@ -1,7 +1,7 @@
-import { DomPortal } from './DomPortal';
-import { PortalRouter } from './portalRouter';
-import { enhancePortalLinks } from './portalLinks';
-import { loadPortalContent, unloadPortalContent } from './portalLoader';
+import { DomPortal } from './DomPortal.js';
+import { PortalRouter } from './portalRouter.js';
+import { enhancePortalLinks } from './portalLinks.js';
+import { loadPortalContent, unloadPortalContent } from './portalLoader.js';
 
 type SetupOptions = {
   routerMode?: 'query' | 'hash' | 'none';
@@ -84,7 +84,7 @@ export function setupDomPortal(options: SetupOptions) {
 
 
   // Handle routing (on load or URL change)
-  router?.init(async ({ portal: portalName }) => {
+  router?.init(async ({ portal: portalName }: { portal?: string }) => {
     if (suppressNextRoute) return;
 
     if (!portalName) {
