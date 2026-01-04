@@ -29,6 +29,15 @@ function findPortalRegion(element: HTMLElement): HTMLElement | null {
   return element.querySelector('[data-portal-region="main"]');
 }
 
+function stripIds(element: HTMLElement): void {
+  if (element.id) {
+    element.removeAttribute("id");
+  }
+  element.querySelectorAll("[id]").forEach((el) => {
+    el.removeAttribute("id");
+  });
+}
+
 export async function loadPortalContent(
   container: HTMLElement,
   name: string,
@@ -47,6 +56,7 @@ export async function loadPortalContent(
     const clone = inlineElement.cloneNode(true) as HTMLElement;
     clone.removeAttribute("hidden");
     clone.style.removeProperty("display");
+    stripIds(clone);
 
     const region = findPortalRegion(clone);
     if (!region) {
