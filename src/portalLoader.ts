@@ -102,10 +102,12 @@ export function unloadPortalContent() {
     ".metervara-portal .metervara-portal-content-container [data-portal-region='main']"
   );
 
+  /*
   console.log("unloading content in portal", regions.length);
   regions.forEach((region, index) => {
     console.log("content parent", index, region.parentElement);
   });
+  */
 
   regions.forEach((region) => region.remove());
 
