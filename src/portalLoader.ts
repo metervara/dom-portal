@@ -105,9 +105,10 @@ export async function loadPortalContent(
 }
 
 export function unloadPortalContent() {
-  // Remove the main portal content manually
-  const region = document.querySelector('[data-portal-region="main"]');
-  if (region) {
-    region.remove();
-  }
+  // Remove portal content only inside the active portal container
+  document
+    .querySelectorAll(
+      ".metervara-portal .metervara-portal-content-container [data-portal-region='main']"
+    )
+    .forEach((region) => region.remove());
 }
