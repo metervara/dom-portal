@@ -7,6 +7,15 @@
   box-sizing: border-box;
   overflow: hidden;
 
+  /* Transition CSS variables - can be overridden by consumers */
+  --portal-transition-duration: 700ms;
+  --portal-transition-ease: ease;
+  --portal-transition-delay: 0ms;
+  
+  --portal-iframe-transition-duration: 250ms;
+  --portal-iframe-transition-ease: linear;
+  --portal-iframe-transition-delay: 0ms;
+
   /* DEV */
   /* outline: 5px solid red;
   border: 5px solid red; */
@@ -39,7 +48,7 @@
     border: none;
     opacity: 0;
     
-    transition: opacity 250ms linear;
+    transition: opacity var(--portal-iframe-transition-duration) var(--portal-iframe-transition-ease) var(--portal-iframe-transition-delay);
   }
 
   iframe.loaded {
@@ -124,42 +133,42 @@
 
   /* Skewing & animation - seperated from positioning for clarity */
   &.zone-top.zone-left.zone-inner {
-    transition: transform 700ms ease;
+    transition: transform var(--portal-transition-duration) var(--portal-transition-ease) var(--portal-transition-delay);
     transform-origin: bottom right;
     transform: skewY(-45deg);
   }
 
   &.zone-top.zone-right.zone-inner {
-    transition: transform 700ms ease;
+    transition: transform var(--portal-transition-duration) var(--portal-transition-ease) var(--portal-transition-delay);
     transform-origin: bottom left;
     transform: skewY(45deg);
   }
 
   &.zone-bottom.zone-left.zone-inner {
-    transition: transform 700ms ease;
+    transition: transform var(--portal-transition-duration) var(--portal-transition-ease) var(--portal-transition-delay);
     transform-origin: top right;
     transform: skewY(45deg);
   }
 
   &.zone-bottom.zone-right.zone-inner {
-    transition: transform 700ms ease;
+    transition: transform var(--portal-transition-duration) var(--portal-transition-ease) var(--portal-transition-delay);
     transform-origin: top left;
     transform: skewY(-45deg);
   }
 
   &.zone-left.zone-outer {
-    transition: transform 700ms ease;
+    transition: transform var(--portal-transition-duration) var(--portal-transition-ease) var(--portal-transition-delay);
 
     .metervara-portal-clone {
-      transition: transform 700ms ease;
+      transition: transform var(--portal-transition-duration) var(--portal-transition-ease) var(--portal-transition-delay);
     }
   }
 
   &.zone-right.zone-outer {
-    transition: transform 700ms ease;
+    transition: transform var(--portal-transition-duration) var(--portal-transition-ease) var(--portal-transition-delay);
 
     .metervara-portal-clone {
-      transition: transform 700ms ease;
+      transition: transform var(--portal-transition-duration) var(--portal-transition-ease) var(--portal-transition-delay);
     }
   }
 }
@@ -175,7 +184,7 @@
 
   z-index: 1;
 
-  transition: transform 700ms ease;
+  transition: transform var(--portal-transition-duration) var(--portal-transition-ease) var(--portal-transition-delay);
   /* transform: translate(-50%, -50%) rotate(45deg); */
   pointer-events: none;
 
