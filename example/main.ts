@@ -16,4 +16,23 @@ window.addEventListener("DOMContentLoaded", () => {
       // unloadPortalContent(); // Too soon, portal is  not closed yet
     }
   });
+
+  window.addEventListener('portal:opening', (e: Event) => {
+    console.log('Portal is opening', e);
+  });
+  
+  // Listen for portal fully open
+  window.addEventListener('portal:open', (e: Event) => {
+    console.log('Portal is now open', e);
+  });
+  
+  // Listen for portal closing
+  window.addEventListener('portal:closing', (e: Event) => {
+    console.log('Portal is closing', e);
+  });
+  
+  // Listen for portal fully closed
+  window.addEventListener('portal:closed', (e: Event) => {
+    console.log('Portal is now closed', e);
+  });
 });

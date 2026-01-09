@@ -15,6 +15,7 @@ export function enhancePortalLinks(): void {
       const path = link.getAttribute('data-portal-path');
       const externalUrl = link.getAttribute('data-portal-url');
       const inlineSelector = link.getAttribute('data-portal-inline');
+      const inlineMode = link.getAttribute('data-portal-inline-mode') as 'clone' | 'move' | null;
 
       // Use actual mouse position
       const clickX = e.clientX;
@@ -31,6 +32,7 @@ export function enhancePortalLinks(): void {
           path,
           externalUrl,
           inlineSelector,
+          inlineMode,
           size,
         }
       }));

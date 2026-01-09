@@ -30,6 +30,7 @@ export function setupDomPortal(options: SetupOptions) {
       path,
       externalUrl,
       inlineSelector,
+      inlineMode,
       size,
       scrollIntoView = false
     } = e.detail;
@@ -38,7 +39,7 @@ export function setupDomPortal(options: SetupOptions) {
       const container = await portal.openAndReady(clickX, clickY, size);
       let source: Parameters<typeof loadPortalContent>[2];
       if (inlineSelector) {
-        source = { type: 'inline', selector: inlineSelector };
+        source = { type: 'inline', selector: inlineSelector, mode: inlineMode };
       } else if (externalUrl) {
         source = { type: 'external', url: externalUrl };
       } else {

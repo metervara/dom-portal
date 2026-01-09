@@ -35,12 +35,27 @@ Clicking the link emits `portal:trigger`, the portal opens at the click position
 
 ## Portal content types
 - Local HTML file (default): place `data-portal="demo"` on a link and create `/portal/content/demo.html` containing a `[data-portal-region="main"]`.
-- Inline snippet: point the trigger at an existing element with `data-portal-inline="#selector"`. The element stays hidden in the page but its `data-portal-region="main"]` is cloned into the portal.
+- Inline snippet: point the trigger at an existing element with `data-portal-inline="#selector"`. By default the target is cloned, but you can move the live node instead to preserve state.
 - External page (iframe): use `data-portal-url="https://example.com"`. The URL is loaded in an iframe and gains a `loaded` class when ready.
 
 Optional extras on triggers:
 - `data-portal-path` to override the default `/portal/content/{name}.html`
 - `data-portal-size` to set portal width (e.g. `640px`, `75vw`, `50vh`)
+- `data-portal-inline-mode="move"` to move inline content into the portal instead of cloning (restored on close)
+
+Inline content examples:
+```html
+<a data-portal="about" data-portal-inline="#about-portal" href="#">Clone inline</a>
+
+<a data-portal="live" data-portal-inline="#live-portal" data-portal-inline-mode="move" href="#">
+  Move inline (keeps state)
+</a>
+
+<div id="live-portal" data-portal-region="main" hidden>
+  <!-- This node is moved into the portal and put back when closed -->
+  <div class="safe-area">Live content</div>
+</div>
+```
 
 ## Routing (optional)
 `setupDomPortal` wires a `PortalRouter` that mirrors portal state in the URL:

@@ -17,10 +17,16 @@ function runScripts(element: HTMLElement) {
   });
 }
 
+type InlinePortalContentSource = {
+  type: "inline";
+  selector: string;
+  mode?: "clone" | "move";
+};
+
 export type PortalContentSource =
   | { type: "html"; path: string }
   | { type: "external"; url: string }
-  | { type: "inline"; selector: string };
+  | InlinePortalContentSource;
 
 function findPortalRegion(element: HTMLElement): HTMLElement | null {
   if (element.dataset.portalRegion === "main") {
@@ -38,19 +44,86 @@ function stripIds(element: HTMLElement): void {
   });
 }
 
+type MovedInlineRegion = {
+  placeholder: Comment;
+  parent: Node;
+  wasHidden: boolean;
+  previousDisplay: string | null;
+};
+
+const movedInlineRegions = new Map<HTMLElement, MovedInlineRegion>();
+
+function restoreMovedInlineRegions() {
+  for (const [region, info] of movedInlineRegions) {
+    const { placeholder, parent, wasHidden, previousDisplay } = info;
+
+    if (placeholder.parentNode) {
+      placeholder.parentNode.replaceChild(region, placeholder);
+    } else {
+      parent.appendChild(region);
+    }
+
+    if (wasHidden) {
+      region.setAttribute("hidden", "");
+    } else {
+      region.removeAttribute("hidden");
+    }
+
+    if (previousDisplay !== null) {
+      region.style.display = previousDisplay;
+    } else {
+      region.style.removeProperty("display");
+    }
+
+    movedInlineRegions.delete(region);
+  }
+}
+
 export async function loadPortalContent(
   container: HTMLElement,
   name: string,
   source: PortalContentSource
 ): Promise<void> {
+  restoreMovedInlineRegions();
   container.innerHTML = ""; // clear existing content
 
   if (source.type === "inline") {
-    const inlineElement = document.querySelector(source.selector) as
-      | HTMLElement
-      | null;
+    const inlineElement = document.querySelector(source.selector) as HTMLElement | null;
     if (!inlineElement) {
       throw new Error(`Inline portal source "${source.selector}" not found`);
+    }
+
+    const region = findPortalRegion(inlineElement);
+    if (!region) {
+      throw new Error(`No content region found in inline source "${source.selector}"`);
+    }
+
+    const mode = source.mode || "clone";
+
+    if (mode === "move") {
+      const parent = region.parentNode;
+      if (!parent) {
+        throw new Error(`Inline portal source "${source.selector}" has no parent`);
+      }
+
+      const placeholder = document.createComment("portal-inline-placeholder");
+      parent.insertBefore(placeholder, region);
+
+      const previousDisplay = region.style.display || null;
+      const wasHidden = region.hasAttribute("hidden");
+
+      region.removeAttribute("hidden");
+      region.style.removeProperty("display");
+
+      movedInlineRegions.set(region, {
+        placeholder,
+        parent,
+        wasHidden,
+        previousDisplay,
+      });
+
+      container.appendChild(region);
+      return;
     }
 
     const clone = inlineElement.cloneNode(true) as HTMLElement;
@@ -58,15 +131,13 @@ export async function loadPortalContent(
     clone.style.removeProperty("display");
     stripIds(clone);
 
-    const region = findPortalRegion(clone);
-    if (!region) {
-      throw new Error(
-        `No content region found in inline source "${source.selector}"`
-      );
+    const clonedRegion = findPortalRegion(clone);
+    if (!clonedRegion) {
+      throw new Error(`No content region found in inline source "${source.selector}"`);
     }
 
-    container.appendChild(region);
-    runScripts(region);
+    container.appendChild(clonedRegion);
+    runScripts(clonedRegion);
     return;
   }
 
@@ -108,6 +179,8 @@ export async function loadPortalContent(
 }
 
 export function unloadPortalContent() {
+  restoreMovedInlineRegions();
+
   const regions = document.querySelectorAll(
     ".metervara-portal .metervara-portal-content-container [data-portal-region='main']"
   );
