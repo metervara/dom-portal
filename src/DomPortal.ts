@@ -36,7 +36,7 @@ export class DomPortal {
   private transitionTimeoutId: number | null = null;
   private resizeObserver: ResizeObserver;
   private handleGlobalPointerDown: (event: PointerEvent) => void;
-  private handleWindowResize: () => void;
+  // private handleWindowResize: () => void;
 
   constructor(targetElement: HTMLElement) {
     this.targetElement = targetElement;
@@ -87,12 +87,11 @@ export class DomPortal {
     // Capture phase to ensure we see the click even if underlying elements handle it
     document.addEventListener("pointerdown", this.handleGlobalPointerDown, true);
 
-    this.handleWindowResize = () => {
-      if (this.state === "closed") return;
-      this.closePortal(0, 0, { instant: true });
-    };
-
-    window.addEventListener("resize", this.handleWindowResize);
+    // this.handleWindowResize = () => {
+    //   if (this.state === "closed") return;
+    //   this.closePortal(0, 0, { instant: true });
+    // };
+    // window.addEventListener("resize", this.handleWindowResize);
   }
 
   /**
@@ -184,7 +183,7 @@ export class DomPortal {
       this.handleGlobalPointerDown,
       true
     );
-    window.removeEventListener("resize", this.handleWindowResize);
+    // window.removeEventListener("resize", this.handleWindowResize);
 
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);

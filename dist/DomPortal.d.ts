@@ -12,7 +12,6 @@ export declare class DomPortal {
     private transitionTimeoutId;
     private resizeObserver;
     private handleGlobalPointerDown;
-    private handleWindowResize;
     constructor(targetElement: HTMLElement);
     /**
      * Public methods
