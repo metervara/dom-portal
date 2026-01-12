@@ -35,7 +35,7 @@ export class DomPortal {
   private animationFrameId: number | null = null;
   private transitionTimeoutId: number | null = null;
   private resizeObserver: ResizeObserver;
-  private handleGlobalPointerDown: (event: PointerEvent) => void;
+  private handleGlobalClick: (event: MouseEvent) => void;
   // private handleWindowResize: () => void;
 
   constructor(targetElement: HTMLElement) {
@@ -70,8 +70,10 @@ export class DomPortal {
     });
     this.resizeObserver.observe(this.targetElement);
 
-    this.handleGlobalPointerDown = (event: PointerEvent) => {
+    this.handleGlobalClick = (event: MouseEvent) => {
       if (this.state === "closed") return;
+
+      console.log('handleGlobalClick', event);
 
       const target = event.target as HTMLElement;
 
@@ -81,11 +83,12 @@ export class DomPortal {
       }
 
       // Any other click while the portal is open closes it
+      console.log('closePortal from handleGlobalClick');
       this.closePortal(0, 0);
     };
 
     // Capture phase to ensure we see the click even if underlying elements handle it
-    document.addEventListener("pointerdown", this.handleGlobalPointerDown, true);
+    document.addEventListener("click", this.handleGlobalClick, true);
 
     // this.handleWindowResize = () => {
     //   if (this.state === "closed") return;
@@ -151,8 +154,10 @@ export class DomPortal {
     opts: { instant?: boolean } = {}
   ): void {
     if (this.state !== "open" && this.state !== "opening") return;
+    console.log('closePortal', this.state);
 
     if (opts.instant) {
+      console.log('closePortal instant');
       this.clearTransitionTimeout();
       this.setState("closed");
       this.deletePortalElements();
@@ -179,8 +184,8 @@ export class DomPortal {
   public destroy() {
     this.resizeObserver.disconnect();
     document.removeEventListener(
-      "pointerdown",
-      this.handleGlobalPointerDown,
+      "click",
+      this.handleGlobalClick,
       true
     );
     // window.removeEventListener("resize", this.handleWindowResize);
@@ -291,11 +296,11 @@ export class DomPortal {
     this.portalElement!.appendChild(contentWRapper);
 
     // Close when clicking anywhere on the portal except inside the content container
-    this.portalElement.addEventListener("pointerdown", (event) => {
-      const target = event.target as HTMLElement;
-      if (target.closest(".metervara-portal-content-container")) return;
-      this.closePortal(0, 0);
-    });
+    // this.portalElement.addEventListener("pointerdown", (event) => {
+    //   const target = event.target as HTMLElement;
+    //   if (target.closest(".metervara-portal-content-container")) return;
+    //   this.closePortal(0, 0);
+    // });
     
 
     /*
