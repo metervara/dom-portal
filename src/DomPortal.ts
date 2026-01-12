@@ -33,7 +33,9 @@ export class DomPortal {
   private state: PortalState = "closed";
   // private transitionProgress: number = 0;
   private animationFrameId: number | null = null;
-  private transitionTimeoutId: number | null = null;
+  private transitionGeneration: number = 0;
+  private transitionEndHandler: ((event: TransitionEvent) => void) | null = null;
+  private transitionElement: HTMLElement | null = null;
   private resizeObserver: ResizeObserver;
   private handleGlobalClick: (event: MouseEvent) => void;
   // private handleWindowResize: () => void;
@@ -158,7 +160,7 @@ export class DomPortal {
 
     if (opts.instant) {
       console.log('closePortal instant');
-      this.clearTransitionTimeout();
+      this.clearTransitionListener();
       this.setState("closed");
       this.deletePortalElements();
       return;
@@ -166,7 +168,7 @@ export class DomPortal {
 
     // If we are mid-opening, mark as open so the close animation can run
     if (this.state === "opening") {
-      this.clearTransitionTimeout();
+      this.clearTransitionListener();
       this.setState("open");
     }
 
@@ -193,7 +195,7 @@ export class DomPortal {
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);
     }
-    this.clearTransitionTimeout();
+    this.clearTransitionListener();
     this.deletePortalElements();
   }
 
@@ -340,9 +342,7 @@ export class DomPortal {
     this.state = state;
 
     const shouldHideTarget = state !== "closed";
-    this.targetElement.style.visibility = shouldHideTarget
-      ? "hidden"
-      : "visible";
+    this.targetElement.style.visibility = shouldHideTarget ? "hidden" : "visible";
 
     const event = new CustomEvent("portal:" + state, {
       detail: {
@@ -366,10 +366,12 @@ export class DomPortal {
   }
 
   private onOpened() {
+    console.log('ON OPENED');
     this.setState("open");
   }
 
   private onClosed() {
+    console.log('ON CLOSED');
     this.setState("closed");
     this.deletePortalElements();
   }
@@ -392,59 +394,57 @@ export class DomPortal {
     stagger: number,
     onComplete: () => void
   ) {
-    // const startTime = performance.now();
-    // const staggerItemCount = this.holeLayers.length;
-    // const totalDuration = duration + stagger * (staggerItemCount - 1);
-    // const normalizedStagger = stagger / totalDuration;
-    // const normalizedDuration = duration / totalDuration;
+    console.log('animateTransition', from, to, duration, stagger);
+    // Clean up any previous transition listener
+    this.clearTransitionListener();
 
-    // DIRECT: Animate using css transition with this
+    // Increment generation so any stale listeners are ignored
+    const currentGeneration = ++this.transitionGeneration;
+
     if (to === 1) {
       this.portalElement?.classList.add('open');
     } else if (to === 0) {
       this.portalElement?.classList.remove('open');
     }
 
-    this.clearTransitionTimeout();
-    this.transitionTimeoutId = window.setTimeout(() => {
-      this.transitionTimeoutId = null;
+    // Pick a reference element to listen for transition end
+    const referenceElement = this.portalElement?.querySelector(
+      '.metervara-portal-zone.zone-left.zone-outer'
+    ) as HTMLElement | null;
+
+    if (!referenceElement) {
+      console.log('animateTransition no referenceElement.. aborting');
       onComplete();
-    }, duration);
+      return;
+    }
 
-    /*
-    // JS Animation loop. 
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / totalDuration, 1); // easing.easeInOutCubic(Math.min(elapsed / totalDuration, 1)); // No easing yet...
-      
-      const value = from + (to - from) * progress; 
-      
-      const staggeredProgress0 = easing.easeInOutCubic(getStaggeredTime(value, 0, normalizedStagger, normalizedDuration) / normalizedDuration); // 0 to 1
-      // debug.push(staggeredProgress0);
-
-      // this.portalElement?.style.setProperty('--portal-width', `${ this.transitionProgress * this.portalWidthOpenHalf}px`);
-      this.portalElement?.style.setProperty('--portal-width', `${ staggeredProgress0 * this.portalWidthOpenHalf}px`);
-
-      // Staggered progress for holes
-      this.holeLayers.forEach((hole, i) => {
-        const staggeredProgressIndex = easing.easeInOutCubic(getStaggeredTime(value, i, normalizedStagger, normalizedDuration) / normalizedDuration);
-        hole.style.setProperty('--portal-width', `${ staggeredProgressIndex * this.portalWidthOpenHalf}px`);
-      })
-
-      if (progress < 1) {
-        this.animationFrameId = requestAnimationFrame(animate);
-      } else {
-        onComplete();
+    this.transitionElement = referenceElement;
+    this.transitionEndHandler = (event: TransitionEvent) => {
+      // Only react to transform on the reference element
+      if (event.target !== referenceElement || event.propertyName !== 'transform') {
+        return;
       }
+
+      console.log('animateTransition transitionend');
+      this.clearTransitionListener();
+
+      // Ignore if a new transition has started
+      if (currentGeneration !== this.transitionGeneration) {
+        return;
+      }
+
+      console.log('animateTransition onComplete');
+      onComplete();
     };
-    this.animationFrameId = requestAnimationFrame(animate);
-    */
+
+    referenceElement.addEventListener('transitionend', this.transitionEndHandler);
   }
 
-  private clearTransitionTimeout() {
-    if (this.transitionTimeoutId !== null) {
-      clearTimeout(this.transitionTimeoutId);
-      this.transitionTimeoutId = null;
+  private clearTransitionListener() {
+    if (this.transitionEndHandler && this.transitionElement) {
+      this.transitionElement.removeEventListener('transitionend', this.transitionEndHandler);
     }
+    this.transitionEndHandler = null;
+    this.transitionElement = null;
   }
 }

@@ -18,21 +18,21 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   window.addEventListener('portal:opening', (e: Event) => {
-    console.log('Portal is opening', e);
+    console.log('EVENT: portal:opening');
   });
   
   // Listen for portal fully open
   window.addEventListener('portal:open', (e: Event) => {
-    console.log('Portal is now open', e);
+    console.log('EVENT: portal:open');
   });
   
   // Listen for portal closing
   window.addEventListener('portal:closing', (e: Event) => {
-    console.log('Portal is closing', e);
+    console.log('EVENT: portal:closing');
   });
   
   // Listen for portal fully closed
   window.addEventListener('portal:closed', (e: Event) => {
-    console.log('Portal is now closed', e);
+    console.log('EVENT: portal:closed');
   });
 });
