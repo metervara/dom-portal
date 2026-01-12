@@ -1,0 +1,69 @@
+name: Build and Tag Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get package version
+        id: package-version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists
+        id: check-tag
+        run: |
+          if git rev-parse "v${{ steps.package-version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.check-tag.outputs.exists == 'false'
+        run: npm ci
+
+      - name: Build
+        if: steps.check-tag.outputs.exists == 'false'
+        run: npm run build
+
+      - name: Commit dist changes
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/
+          git diff --staged --quiet || git commit -m "Build v${{ steps.package-version.outputs.version }}"
+          git push
+
+      - name: Create and push tag
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          git tag "v${{ steps.package-version.outputs.version }}"
+          git push origin "v${{ steps.package-version.outputs.version }}"
+
+      - name: Summary
+        if: steps.check-tag.outputs.exists == 'false'
+        run: echo "✅ Released v${{ steps.package-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Skip message
+        if: steps.check-tag.outputs.exists == 'true'
+        run: echo "⏭️ Tag v${{ steps.package-version.outputs.version }} already exists, skipping build" >> $GITHUB_STEP_SUMMARY
