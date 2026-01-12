@@ -9,9 +9,11 @@ export declare class DomPortal {
     private portalWidthOpenHalf;
     private state;
     private animationFrameId;
-    private transitionTimeoutId;
+    private transitionGeneration;
+    private transitionEndHandler;
+    private transitionElement;
     private resizeObserver;
-    private handleGlobalPointerDown;
+    private handleGlobalClick;
     constructor(targetElement: HTMLElement);
     /**
      * Public methods
@@ -53,6 +55,6 @@ export declare class DomPortal {
      * // TODO: Fix ranges. At the moment this might not work if from and to are not in the raneg 0 to 1
      */
     private animateTransition;
-    private clearTransitionTimeout;
+    private clearTransitionListener;
 }
 //# sourceMappingURL=DomPortal.d.ts.map

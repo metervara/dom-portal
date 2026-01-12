@@ -8,10 +8,10 @@ const b = [
   "bottom-right-outer",
   "bottom-right-inner"
 ];
-class C {
+class P {
   // private handleWindowResize: () => void;
   constructor(t) {
-    this.portalElement = null, this.portalCenterX = 0, this.portalCenterY = 0, this.portalWidthOpenHalf = 0, this.state = "closed", this.animationFrameId = null, this.transitionTimeoutId = null, this.targetElement = t, this.parentElement = t.parentElement;
+    this.portalElement = null, this.portalCenterX = 0, this.portalCenterY = 0, this.portalWidthOpenHalf = 0, this.state = "closed", this.animationFrameId = null, this.transitionGeneration = 0, this.transitionEndHandler = null, this.transitionElement = null, this.targetElement = t, this.parentElement = t.parentElement;
     const e = window.getComputedStyle(this.parentElement);
     e.position === "relative" || e.position === "absolute" || console.error(
       "Dom portal only works if the parent of the target element is positioned relative or absolute"
@@ -23,9 +23,9 @@ class C {
         "--clone-height",
         `${Math.round(this.targetRect.height)}px`
       ));
-    }), this.resizeObserver.observe(this.targetElement), this.handleGlobalPointerDown = (s) => {
-      this.state === "closed" || s.target.closest(".metervara-portal-content-container") || this.closePortal(0, 0);
-    }, document.addEventListener("pointerdown", this.handleGlobalPointerDown, !0);
+    }), this.resizeObserver.observe(this.targetElement), this.handleGlobalClick = (a) => {
+      this.state === "closed" || (console.log("handleGlobalClick", a), a.target.closest(".metervara-portal-content-container")) || (console.log("closePortal from handleGlobalClick"), this.closePortal(0, 0));
+    }, document.addEventListener("click", this.handleGlobalClick, !0);
   }
   /**
    * Public methods
@@ -34,12 +34,12 @@ class C {
    * Open that ensures content container is ready for loading
    */
   async openAndReady(t, e, i) {
-    return this.openPortal(t, e, i), new Promise((s, a) => {
+    return this.openPortal(t, e, i), new Promise((a, l) => {
       const r = () => {
         const o = document.querySelector(
           ".metervara-portal-content-container"
         );
-        o ? s(o) : this.state === "closed" ? a(new Error("Portal closed before container was ready")) : requestAnimationFrame(r);
+        o ? a(o) : this.state === "closed" ? l(new Error("Portal closed before container was ready")) : requestAnimationFrame(r);
       };
       requestAnimationFrame(r);
     });
@@ -51,11 +51,11 @@ class C {
   }
   closePortal(t, e, i = {}) {
     if (!(this.state !== "open" && this.state !== "opening")) {
-      if (i.instant) {
-        this.clearTransitionTimeout(), this.setState("closed"), this.deletePortalElements();
+      if (console.log("closePortal", this.state), i.instant) {
+        console.log("closePortal instant"), this.clearTransitionListener(), this.setState("closed"), this.deletePortalElements();
         return;
       }
-      this.state === "opening" && (this.clearTransitionTimeout(), this.setState("open")), this.close();
+      this.state === "opening" && (this.clearTransitionListener(), this.setState("open")), this.close();
     }
   }
   togglePortal(t, e) {
@@ -63,10 +63,10 @@ class C {
   }
   destroy() {
     this.resizeObserver.disconnect(), document.removeEventListener(
-      "pointerdown",
-      this.handleGlobalPointerDown,
+      "click",
+      this.handleGlobalClick,
       !0
-    ), this.animationFrameId !== null && cancelAnimationFrame(this.animationFrameId), this.clearTransitionTimeout(), this.deletePortalElements();
+    ), this.animationFrameId !== null && cancelAnimationFrame(this.animationFrameId), this.clearTransitionListener(), this.deletePortalElements();
   }
   /**
    * Private methods - DOM utils
@@ -115,18 +115,16 @@ class C {
       `${Math.round(this.portalWidthOpenHalf - e * (t - 1))}px`
     ), b.forEach((r) => {
       const o = document.createElement("div");
-      o.classList.add("metervara-portal-zone"), o.classList.add(...r.split("-").map((l) => `zone-${l}`));
-      const d = this.targetElement.cloneNode(!0);
-      d.classList.add("metervara-portal-clone"), o.appendChild(d), this.portalElement.appendChild(o);
+      o.classList.add("metervara-portal-zone"), o.classList.add(...r.split("-").map((s) => `zone-${s}`));
+      const c = this.targetElement.cloneNode(!0);
+      c.classList.add("metervara-portal-clone"), o.appendChild(c), this.portalElement.appendChild(o);
     });
     const i = document.createElement("div");
     i.classList.add("metervara-portal-border", "top"), this.portalElement.appendChild(i);
-    const s = document.createElement("div");
-    s.classList.add("metervara-portal-border", "bottom"), this.portalElement.appendChild(s);
     const a = document.createElement("div");
-    a.classList.add("metervara-portal-content-container"), this.portalElement.appendChild(a), this.portalElement.addEventListener("pointerdown", (r) => {
-      r.target.closest(".metervara-portal-content-container") || this.closePortal(0, 0);
-    });
+    a.classList.add("metervara-portal-border", "bottom"), this.portalElement.appendChild(a);
+    const l = document.createElement("div");
+    l.classList.add("metervara-portal-content-container"), this.portalElement.appendChild(l);
   }
   deletePortalElements() {
     this.portalElement && (this.portalElement.innerHTML = "", this.portalElement.remove(), this.portalElement = null);
@@ -153,10 +151,10 @@ class C {
     this.state === "open" && (this.setState("closing"), this.animateTransition(1, 0, t, e, this.onClosed.bind(this)));
   }
   onOpened() {
-    this.setState("open");
+    console.log("ON OPENED"), this.setState("open");
   }
   onClosed() {
-    this.setState("closed"), this.deletePortalElements();
+    console.log("ON CLOSED"), this.setState("closed"), this.deletePortalElements();
   }
   /**
    *
@@ -169,13 +167,23 @@ class C {
    * // TODO: Fix ranges. using multiple ranges, normalized, staggered is less, and then we have the full...
    * // TODO: Fix ranges. At the moment this might not work if from and to are not in the raneg 0 to 1
    */
-  animateTransition(t, e, i, s, a) {
-    e === 1 ? this.portalElement?.classList.add("open") : e === 0 && this.portalElement?.classList.remove("open"), this.clearTransitionTimeout(), this.transitionTimeoutId = window.setTimeout(() => {
-      this.transitionTimeoutId = null, a();
-    }, i);
+  animateTransition(t, e, i, a, l) {
+    console.log("animateTransition", t, e, i, a), this.clearTransitionListener();
+    const r = ++this.transitionGeneration;
+    e === 1 ? this.portalElement?.classList.add("open") : e === 0 && this.portalElement?.classList.remove("open");
+    const o = this.portalElement?.querySelector(
+      ".metervara-portal-zone.zone-left.zone-outer"
+    );
+    if (!o) {
+      console.log("animateTransition no referenceElement.. aborting"), l();
+      return;
+    }
+    this.transitionElement = o, this.transitionEndHandler = (c) => {
+      c.target !== o || c.propertyName !== "transform" || (console.log("animateTransition transitionend"), this.clearTransitionListener(), r === this.transitionGeneration && (console.log("animateTransition onComplete"), l()));
+    }, o.addEventListener("transitionend", this.transitionEndHandler);
   }
-  clearTransitionTimeout() {
-    this.transitionTimeoutId !== null && (clearTimeout(this.transitionTimeoutId), this.transitionTimeoutId = null);
+  clearTransitionListener() {
+    this.transitionEndHandler && this.transitionElement && this.transitionElement.removeEventListener("transitionend", this.transitionEndHandler), this.transitionEndHandler = null, this.transitionElement = null;
   }
 }
 class R {
@@ -228,27 +236,27 @@ function y(n) {
     e.type = t.type || "text/javascript", console.log(t), t.src ? e.src = t.src : e.textContent = t.textContent, t.parentNode?.replaceChild(e, t);
   });
 }
-function w(n) {
+function E(n) {
   return n.dataset.portalRegion === "main" ? n : n.querySelector('[data-portal-region="main"]');
 }
-function T(n) {
+function L(n) {
   n.id && n.removeAttribute("id"), n.querySelectorAll("[id]").forEach((t) => {
     t.removeAttribute("id");
   });
 }
-const E = /* @__PURE__ */ new Map();
+const w = /* @__PURE__ */ new Map();
 function v() {
-  for (const [n, t] of E) {
-    const { placeholder: e, parent: i, wasHidden: s, previousDisplay: a } = t;
-    e.parentNode ? e.parentNode.replaceChild(n, e) : i.appendChild(n), s ? n.setAttribute("hidden", "") : n.removeAttribute("hidden"), a !== null ? n.style.display = a : n.style.removeProperty("display"), E.delete(n);
+  for (const [n, t] of w) {
+    const { placeholder: e, parent: i, wasHidden: a, previousDisplay: l } = t;
+    e.parentNode ? e.parentNode.replaceChild(n, e) : i.appendChild(n), a ? n.setAttribute("hidden", "") : n.removeAttribute("hidden"), l !== null ? n.style.display = l : n.style.removeProperty("display"), w.delete(n);
   }
 }
-async function A(n, t, e) {
+async function k(n, t, e) {
   if (v(), n.innerHTML = "", e.type === "inline") {
     const r = document.querySelector(e.selector);
     if (!r)
       throw new Error(`Inline portal source "${e.selector}" not found`);
-    const o = w(r);
+    const o = E(r);
     if (!o)
       throw new Error(`No content region found in inline source "${e.selector}"`);
     if ((e.mode || "clone") === "move") {
@@ -258,7 +266,7 @@ async function A(n, t, e) {
       const p = document.createComment("portal-inline-placeholder");
       h.insertBefore(p, o);
       const u = o.style.display || null, m = o.hasAttribute("hidden");
-      o.removeAttribute("hidden"), o.style.removeProperty("display"), E.set(o, {
+      o.removeAttribute("hidden"), o.style.removeProperty("display"), w.set(o, {
         placeholder: p,
         parent: h,
         wasHidden: m,
@@ -266,12 +274,12 @@ async function A(n, t, e) {
       }), n.appendChild(o);
       return;
     }
-    const l = r.cloneNode(!0);
-    l.removeAttribute("hidden"), l.style.removeProperty("display"), T(l);
-    const c = w(l);
-    if (!c)
+    const s = r.cloneNode(!0);
+    s.removeAttribute("hidden"), s.style.removeProperty("display"), L(s);
+    const d = E(s);
+    if (!d)
       throw new Error(`No content region found in inline source "${e.selector}"`);
-    n.appendChild(c), y(c);
+    n.appendChild(d), y(d);
     return;
   }
   if (e.type === "external") {
@@ -281,87 +289,87 @@ async function A(n, t, e) {
     }, r.src = e.url, r.allow = "fullscreen; pointer-lock", n.appendChild(r);
     return;
   }
-  const i = await fetch(e.path).then((r) => r.text()), s = document.createElement("div");
-  s.innerHTML = i;
-  const a = w(s);
-  if (!a) throw new Error(`No content region found in ${e.path}`);
-  n.appendChild(a), y(a);
+  const i = await fetch(e.path).then((r) => r.text()), a = document.createElement("div");
+  a.innerHTML = i;
+  const l = E(a);
+  if (!l) throw new Error(`No content region found in ${e.path}`);
+  n.appendChild(l), y(l);
 }
-function L() {
+function A() {
   v(), document.querySelectorAll(
     ".metervara-portal .metervara-portal-content-container [data-portal-region='main']"
   ).forEach((t) => t.remove());
 }
-function $() {
+function S() {
   document.addEventListener("click", (n) => {
     const e = n.target.closest("[data-portal]");
     if (e) {
       n.preventDefault();
       const i = e.getAttribute("data-portal");
       if (!i) return;
-      const s = e.getAttribute("data-portal-path"), a = e.getAttribute("data-portal-url"), r = e.getAttribute("data-portal-inline"), o = e.getAttribute("data-portal-inline-mode"), d = n.clientX, l = n.clientY, c = e.getAttribute("data-portal-size") || void 0;
+      const a = e.getAttribute("data-portal-path"), l = e.getAttribute("data-portal-url"), r = e.getAttribute("data-portal-inline"), o = e.getAttribute("data-portal-inline-mode"), c = n.clientX, s = n.clientY, d = e.getAttribute("data-portal-size") || void 0;
       window.dispatchEvent(new CustomEvent("portal:trigger", {
         detail: {
           portalName: i,
-          clickX: d,
-          clickY: l,
-          path: s,
-          externalUrl: a,
+          clickX: c,
+          clickY: s,
+          path: a,
+          externalUrl: l,
           inlineSelector: r,
           inlineMode: o,
-          size: c
+          size: d
         }
       }));
     }
   });
 }
-function S(n) {
+function x(n) {
   const t = document.querySelector(n.portalTarget);
   if (!t)
     throw new Error(`Portal target "${n.portalTarget}" not found`);
-  const e = new C(t), i = n.routerMode || "query", s = i === "none" ? void 0 : new R({ mode: i });
-  let a = !1;
-  return $(), window.addEventListener("portal:trigger", async (r) => {
+  const e = new P(t), i = n.routerMode || "query", a = i === "none" ? void 0 : new R({ mode: i });
+  let l = !1;
+  return S(), window.addEventListener("portal:trigger", async (r) => {
     const {
       portalName: o,
-      clickX: d,
-      clickY: l,
-      path: c,
+      clickX: c,
+      clickY: s,
+      path: d,
       externalUrl: h,
       inlineSelector: p,
       inlineMode: u,
       size: m,
-      scrollIntoView: P = !1
+      scrollIntoView: C = !1
     } = r.detail;
     try {
-      const g = await e.openAndReady(d, l, m);
+      const g = await e.openAndReady(c, s, m);
       let f;
-      if (p ? f = { type: "inline", selector: p, mode: u } : h ? f = { type: "external", url: h } : f = { type: "html", path: c || `/portal/content/${o}.html` }, await A(g, o, f), s) {
-        a = !0;
+      if (p ? f = { type: "inline", selector: p, mode: u } : h ? f = { type: "external", url: h } : f = { type: "html", path: d || `/portal/content/${o}.html` }, await k(g, o, f), a) {
+        l = !0;
         try {
-          s.open(o);
+          a.open(o);
         } finally {
-          a = !1;
+          l = !1;
         }
       }
-      P && window.scrollTo({
-        top: l - window.innerHeight / 2,
+      C && window.scrollTo({
+        top: s - window.innerHeight / 2,
         behavior: "smooth"
       });
     } catch (g) {
       console.error("Portal failed to open:", g);
     }
   }), window.addEventListener("portal:closed", () => {
-    if (L(), s) {
-      a = !0;
+    if (A(), a) {
+      l = !0;
       try {
-        s.close();
+        a.close();
       } finally {
-        a = !1;
+        l = !1;
       }
     }
-  }), s?.init(async ({ portal: r }) => {
-    if (a) return;
+  }), a?.init(async ({ portal: r }) => {
+    if (l) return;
     if (!r) {
       e.closePortal(0, 0);
       return;
@@ -371,33 +379,33 @@ function S(n) {
       console.warn(`No portal link found for '${r}'`);
       return;
     }
-    const d = o?.getAttribute("data-portal-path"), l = o?.getAttribute("data-portal-url"), c = o?.getAttribute("data-portal-inline"), h = o?.getBoundingClientRect(), p = h.left + h.width / 2, u = h.top + h.height / 2 + window.scrollY, m = new CustomEvent("portal:trigger", {
+    const c = o?.getAttribute("data-portal-path"), s = o?.getAttribute("data-portal-url"), d = o?.getAttribute("data-portal-inline"), h = o?.getBoundingClientRect(), p = h.left + h.width / 2, u = h.top + h.height / 2 + window.scrollY, m = new CustomEvent("portal:trigger", {
       detail: {
         portalName: r,
         clickX: p,
         clickY: u,
-        path: d || (c ? void 0 : `/portal/content/${r}.html`),
-        externalUrl: l,
-        inlineSelector: c,
+        path: c || (d ? void 0 : `/portal/content/${r}.html`),
+        externalUrl: s,
+        inlineSelector: d,
         scrollIntoView: !0
       }
     });
     window.dispatchEvent(m);
   }), {
     portal: e,
-    router: s
+    router: a
   };
 }
-function k(n) {
+function T(n) {
   return `Hello, ${n}!`;
 }
 export {
-  C as DomPortal,
+  P as DomPortal,
   R as PortalRouter,
-  $ as enhancePortalLinks,
-  k as hello,
-  A as loadPortalContent,
-  S as setupDomPortal,
-  L as unloadPortalContent
+  S as enhancePortalLinks,
+  T as hello,
+  k as loadPortalContent,
+  x as setupDomPortal,
+  A as unloadPortalContent
 };
 //# sourceMappingURL=index.js.map
